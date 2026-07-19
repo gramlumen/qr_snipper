@@ -1,41 +1,50 @@
 @echo off
-:: 设置字符集为 UTF-8，防止中文乱码
-chcp 65001 > nul
 cd /d "%~dp0"
 
-if not exist ".venv\Scripts\python.exe" (
-    echo 未检测到虚拟环境，正在初始化...
+:: 1. 检查虚拟环境是否存在，如果存在则直接跳转到运行程序
+if exist ".venv\Scripts\python.exe" goto RUN_APP
 
-    python --version > nul 2>&1
-    if errorlevel 1 (
-        echo 没有安装 Python，或者未添加到系统 PATH 环境变量中！
-        echo 请先安装 Python 并勾选 "Add Python to PATH"。
-        pause
-        exit /b 1
-    )
+echo [System] Environment not found. Initializing...
 
-    echo 正在创建虚拟环境...
-    python -m venv .venv
-    if errorlevel 1 (
-        echo 虚拟环境创建失败！
-        pause
-        exit /b 1
-    )
+:: 2. 检查全局 Python 是否可用
+python --version > nul 2>&1
+if errorlevel 1 goto NO_PYTHON
 
-    if exist "requirements.txt" (
-        echo 正在安装第三方依赖，请稍候...
-        ".venv\Scripts\python.exe" -m pip install --upgrade pip -q
-        ".venv\Scripts\pip.exe" install -r requirements.txt
-        if errorlevel 1 (
-            echo 依赖包安装失败，请检查网络或 requirements.txt！
-            pause
-            exit /b 1
-        )
-    ) else (
-        echo 未找到 requirements.txt，跳过依赖安装。
-    )
+:: 3. 创建虚拟环境
+echo [System] Creating virtual environment (.venv)...
+python -m venv .venv
+if errorlevel 1 goto VENV_ERR
 
-    echo 环境初始化成功...
-)
+:: 4. 检查并安装依赖
+if not exist "requirements.txt" goto SKIP_REQ
 
+echo [System] Installing dependencies from requirements.txt...
+".venv\Scripts\python.exe" -m pip install --upgrade pip -q
+".venv\Scripts\pip.exe" install -r requirements.txt
+if errorlevel 1 goto PIP_ERR
+
+:SKIP_REQ
+echo [System] Setup completed successfully!
+echo --------------------------------------------------
+
+:RUN_APP
 ".venv\Scripts\python.exe" "main.py" %*
+goto END
+
+:NO_PYTHON
+echo [Error] Python is not installed or not added to PATH!
+echo Please install Python and check "Add Python to PATH".
+pause
+exit /b 1
+
+:VENV_ERR
+echo [Error] Failed to create virtual environment!
+pause
+exit /b 1
+
+:PIP_ERR
+echo [Error] Failed to install dependencies!
+pause
+exit /b 1
+
+:END
