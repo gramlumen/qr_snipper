@@ -1,0 +1,8 @@
+{
+  "decoder_backend": "auto",
+  "actions": ["notify", "copy", "open_url", "history"],
+  "notify_duration": 5,
+  "auto_open_url": true,
+  "history_file": "qr_history.jsonl",
+  "log_level": "INFO"
+}

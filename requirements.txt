@@ -1,0 +1,17 @@
+# Windows 剪贴板 / 系统 API
+pywin32>=306
+
+# 图像处理与剪贴板取图
+pillow>=10.0.0
+
+# 二维码解码后端（装一个即可，建议都装以互为备用）
+pyzbar>=0.1.9
+opencv-python>=4.8.0
+
+# 系统通知
+win10toast>=0.9
+
+# 系统托盘图标
+pystray>=0.19.5
+
+winotify>=1.1.0
